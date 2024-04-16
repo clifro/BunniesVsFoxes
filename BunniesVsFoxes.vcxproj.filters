@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Ecosystem">
+      <UniqueIdentifier>{836dc957-b806-4d26-816f-db38ce1a9a9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Ecosystem\Entity">
+      <UniqueIdentifier>{65a6a26c-294b-4cce-b36d-fa5cc85e1335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Ecosystem\Animals">
+      <UniqueIdentifier>{0cb40307-c0e3-4d07-9d07-a6c62052eb1a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ecosystem.cpp">
+      <Filter>Source Files\Ecosystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files\Ecosystem\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Bunny.cpp">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClCompile>
+    <ClCompile Include="Fox.cpp">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClCompile>
+    <ClCompile Include="MutantBunny.cpp">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Ecosystem.h">
+      <Filter>Source Files\Ecosystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Source Files\Ecosystem\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Bunny.h">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClInclude>
+    <ClInclude Include="Fox.h">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClInclude>
+    <ClInclude Include="MutantBunny.h">
+      <Filter>Source Files\Ecosystem\Animals</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
