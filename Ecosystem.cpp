@@ -1,7 +1,6 @@
 #include"Ecosystem.h"
 #include"Entity.h"
 #include"Bunny.h"
-#include"MutantBunny.h"
 #include"Fox.h"
 #include<iostream>
 #include<iterator>
@@ -69,6 +68,7 @@ void Ecosystem::ProcessLife(EntityType Type)
 		else
 		{
 			(*it)->Kill();
+			(*it) = 0;
 			delete* it;
 			it = EntitiesMap[Type].erase(it);
 		}

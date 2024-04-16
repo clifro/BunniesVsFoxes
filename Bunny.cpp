@@ -5,6 +5,7 @@
 Bunny::Bunny(Ecosystem* system, Entity* Mother)
 {
 	Parent = Mother;
+	ColorAssigned = Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color));
 	RemainingTurns = -1;
 	FoodType = EntityType::Grass;
 	FoodAmount = 2;
@@ -13,17 +14,34 @@ Bunny::Bunny(Ecosystem* system, Entity* Mother)
 	ReproducedAtTurn = 0;
 	Age = 0;
 	Gender = rand() % 2;
+	Ghost = false;
 
 	if (system)
 	{
 		Name = system->RandomName(4);
+	}
+
+	bool ConvertToMutant = ((rand() % 100) <= 2);
+
+	if (ConvertToMutant)
+	{
+		DeathAge = 50;
+		FoodAmount = 4;
+		ReproduceAge = 0;
+		Name = "Mutant " + Name;
+		std::cout << Name << " is born! " << Gender << std::endl;
+		Mutant = ConvertToMutant;
+	}
+	else
+	{
+		Mutant = false;
 		std::cout << "Bunny " << Name << " is born! " << Gender << std::endl;
 	}
 }
 
 bool Bunny::AgeUp(Ecosystem* system)
 {
-	if (RemainingTurns > 0)
+	if (Ghost && RemainingTurns > 0)
 	{
 		RemainingTurns--;
 
@@ -33,20 +51,6 @@ bool Bunny::AgeUp(Ecosystem* system)
 		}
 
 		return true;
-	}
-
-	if (ReproduceAge > 0)
-	{
-		bool ConvertToMutant = ((rand() % 100) <= 2);
-
-		if (ConvertToMutant)
-		{
-			std::cout << "Bunny " << Name << " turned into Mutant! " << Gender << std::endl;
-			DeathAge = 50;
-			FoodAmount = 4;
-			ReproduceAge = 0;
-			Name = "Mutant " + Name;
-		}
 	}
 	
 	++Age;
@@ -71,7 +75,7 @@ bool Bunny::Feed(Ecosystem* System)
 
 void Bunny::Reproduce(Ecosystem* System)
 {
-	if ((ReproduceAge > 0) && (Age >= ReproduceAge) && (ReproducedAtTurn < System->Turn))
+	if (!Mutant && !Ghost && (Age >= ReproduceAge) && (ReproducedAtTurn < System->Turn))
 	{
 		if (Gender == 0)
 		{
@@ -91,9 +95,9 @@ void Bunny::Reproduce(Ecosystem* System)
 
 void Bunny::Kill()
 {
-	if (RemainingTurns >= 0)
+	if (Ghost)
 	{
-		std::cout << "Ghost Bunny " << Name << " is dead! " << std::endl;
+		std::cout << "Ghost Bunny " << Name << " goes to the afterlife! " << std::endl;
 
 		if (Parent)
 		{

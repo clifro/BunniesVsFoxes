@@ -6,6 +6,8 @@ class Bunny : public Entity
 {
 public:
 	Entity* Parent;
+	bool Mutant;
+	bool Ghost;
 	Bunny(Ecosystem* system, Entity* Mother = 0);
 	bool Feed(Ecosystem* system) override;
 	void Kill() override;

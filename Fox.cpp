@@ -21,6 +21,11 @@ Fox::Fox(Ecosystem* system)
 
 bool Fox::AgeUp(Ecosystem* system)
 {
+	if (RemainingTurns > 0)
+	{
+		RemainingTurns--;
+	}
+
 	++Age;
 	return Age < DeathAge;
 }
@@ -40,6 +45,12 @@ bool Fox::Feed(Ecosystem* System)
 			if (System->EntitiesMap[EntityType::Bunny][randomId]->ReproduceAge > 0)
 			{
 				System->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
+				Bunny* BunnyFood = dynamic_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
+
+				if (BunnyFood)
+				{
+					BunnyFood->Ghost = true;
+				}
 			}
 
 			return true;
@@ -55,7 +66,7 @@ bool Fox::Feed(Ecosystem* System)
 
 void Fox::Reproduce(Ecosystem* System)
 {
-	if (Age >= ReproduceAge)
+	if ((Age >= ReproduceAge) && (RemainingTurns <= 0))
 	{
 		std::cout << "Fox " << Name << " reproduced! " << std::endl;
 	}

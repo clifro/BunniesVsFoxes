@@ -33,6 +33,7 @@ protected:
 	int DeathAge;
 
 public:
+	Color ColorAssigned;
 	std::string Name;
 	int ReproduceAge;
 	int RemainingTurns;
