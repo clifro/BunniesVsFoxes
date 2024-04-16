@@ -1,12 +1,14 @@
 #include "Fox.h"
 #include "Ecosystem.h"
 #include<iostream>
+#include"Bunny.h"
 
 Fox::Fox(Ecosystem* system)
 {
-	FoodType = EntityType::Grass;
-	FoodAmount = 2;
-	DeathAge = 10;
+	HuntingAge = 2;
+	FoodType = EntityType::Bunny;
+	FoodAmount = 1;
+	DeathAge = 20;
 	ReproduceAge = 2;
 	Age = 0;
 
@@ -17,25 +19,38 @@ Fox::Fox(Ecosystem* system)
 	}
 }
 
-bool Fox::AgeUp()
+bool Fox::AgeUp(Ecosystem* system)
 {
 	++Age;
-
 	return Age < DeathAge;
 }
 
 bool Fox::Feed(Ecosystem* System)
 {
-	if (System)
+	if (System && (Age >= HuntingAge))
 	{
-		if (System->GetGrassAmount() >= FoodAmount)
+		int numOfBunnies = System->EntitiesMap[EntityType::Bunny].size();
+
+		if (numOfBunnies > 0)
 		{
-			System->ConsumeGrass(FoodAmount);
+			int randomId = rand() % numOfBunnies;
+			std::string bunnyName = System->EntitiesMap[EntityType::Bunny][randomId]->Name;
+			std::cout << "Fox " << Name << " Ate " << bunnyName << std::endl;
+
+			if (System->EntitiesMap[EntityType::Bunny][randomId]->ReproduceAge > 0)
+			{
+				System->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
+			}
+
 			return true;
+		}
+		else
+		{
+			std::cout << "Fox " << Name << " Starved " << std::endl;
 		}
 	}
 
-	return false;
+	return Age < HuntingAge;
 }
 
 void Fox::Reproduce(Ecosystem* System)

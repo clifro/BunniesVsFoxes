@@ -28,15 +28,18 @@ class Entity
 protected:
 
 	EntityType Type;
-	std::string Name;
 	EntityType FoodType;
 	int FoodAmount;
 	int DeathAge;
-	int ReproduceAge;
-	int Age;
 
 public:
-	virtual bool AgeUp() = 0;
+	std::string Name;
+	int ReproduceAge;
+	int RemainingTurns;
+	int Age;
+	int ReproducedAtTurn;
+	bool Gender; // 0 M, 1 F
+	virtual bool AgeUp(Ecosystem* system) = 0;
 	virtual bool Feed(Ecosystem* system) = 0;
 	virtual void Kill() = 0;
 	virtual void Reproduce(Ecosystem* system) = 0;

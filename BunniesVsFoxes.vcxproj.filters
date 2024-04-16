@@ -39,9 +39,6 @@
     <ClCompile Include="Fox.cpp">
       <Filter>Source Files\Ecosystem\Animals</Filter>
     </ClCompile>
-    <ClCompile Include="MutantBunny.cpp">
-      <Filter>Source Files\Ecosystem\Animals</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ecosystem.h">
@@ -54,9 +51,6 @@
       <Filter>Source Files\Ecosystem\Animals</Filter>
     </ClInclude>
     <ClInclude Include="Fox.h">
-      <Filter>Source Files\Ecosystem\Animals</Filter>
-    </ClInclude>
-    <ClInclude Include="MutantBunny.h">
       <Filter>Source Files\Ecosystem\Animals</Filter>
     </ClInclude>
   </ItemGroup>

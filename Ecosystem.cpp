@@ -11,16 +11,38 @@ Ecosystem::Ecosystem()
 	Init();
 }
 
-void Ecosystem::AddEntity(EntityType Type, Entity* EntityData)
+void Ecosystem::AddEntity(EntityType Type, Entity* EntityData, bool Reproduced)
 {
-	EntitiesMap[Type].push_back(EntityData);
+	if (Reproduced)
+	{
+		ReproducedEntitiesMap[Type].push_back(EntityData);
+	}
+	else
+	{
+		EntitiesMap[Type].push_back(EntityData);
+	}
+}
+
+void Ecosystem::AddReproducedEntitiesInEcosystem()
+{
+	if (ReproducedEntitiesMap.size() > 0)
+	{
+		for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
+		{
+			EntitiesMap[i->first].insert(EntitiesMap[i->first].end(), ReproducedEntitiesMap[i->first].begin(), ReproducedEntitiesMap[i->first].end());
+		}
+
+		ReproducedEntitiesMap.clear();
+	}
 }
 
 bool Ecosystem::SimulateEcosystem()
 {
 	bool endSimulation = true;
 	Turn++;
-	std::cout << "Turn : " << Turn << std::endl;
+
+	GrassAmount += GrassGrowRate;
+	std::cout << "Turn : " << Turn << " Grass is " << GrassAmount << std::endl;
 
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 	{
@@ -39,7 +61,7 @@ void Ecosystem::ProcessLife(EntityType Type)
 {
 	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
 	{
-		if ((*it)->AgeUp() && (*it)->Feed(this))
+		if ((*it)->AgeUp(this) && (*it)->Feed(this))
 		{
 			(*it)->Reproduce(this);
 			it++;
@@ -51,6 +73,8 @@ void Ecosystem::ProcessLife(EntityType Type)
 			it = EntitiesMap[Type].erase(it);
 		}
 	}
+
+	AddReproducedEntitiesInEcosystem();
 }
 
 void Ecosystem::Init()

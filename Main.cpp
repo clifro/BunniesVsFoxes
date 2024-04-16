@@ -2,9 +2,11 @@
 #include"Ecosystem.h"
 #include"Entity.h"
 #include <windows.h>
+#include<time.h>
 
 int main()
 {
+	srand(time(NULL));
 	std::cout << " Welcome to Bunnies Vs Foxes Ecosystem " << std::endl;
 	Ecosystem* EcosystemManager = new Ecosystem();
 
@@ -12,7 +14,7 @@ int main()
 	{
 		if (!EcosystemManager->SimulateEcosystem())
 		{
-			std::cout << "Simulation Over!";
+			std::cout << "Simulation Over At Turn " << EcosystemManager->Turn << std::endl;
 			break;
 		}
 
