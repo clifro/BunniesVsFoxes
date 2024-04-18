@@ -61,6 +61,11 @@ bool Bunny::Feed(Ecosystem* System)
 {
 	if (System)
 	{
+		if (Ghost)
+		{
+			return true;
+		}
+
 		if (System->GetGrassAmount() >= FoodAmount)
 		{
 			System->ConsumeGrass(FoodAmount);
@@ -81,12 +86,17 @@ void Bunny::Reproduce(Ecosystem* System)
 		{
 			for (auto it = System->EntitiesMap[EntityType::Bunny].begin(); it != System->EntitiesMap[EntityType::Bunny].end(); ++it)
 			{
-				(*it)->ReproducedAtTurn = System->Turn;
+				Bunny* AdultBunny = dynamic_cast<Bunny*>((*it));
 
-				if (((*it)->Gender == 1) && ((*it)->ReproduceAge > 0) && ((*it)->Age >= (*it)->ReproduceAge))
+				if (AdultBunny)
 				{
-					std::cout << "Bunny " << Name << " reproduced with " << (*it)->Name << std::endl;
-					System->AddEntity(EntityType::Bunny, new Bunny(System, (*it)), true);
+					AdultBunny->ReproducedAtTurn = System->Turn;
+
+					if ((AdultBunny->Gender == 1) && (AdultBunny->ReproduceAge > 0) && (AdultBunny->Age >= AdultBunny->ReproduceAge) && !AdultBunny->Mutant && !AdultBunny->Ghost)
+					{
+						std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
+						System->AddEntity(EntityType::Bunny, new Bunny(System, AdultBunny), true);
+					}
 				}
 			}
 		}

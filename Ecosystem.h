@@ -11,8 +11,8 @@ class Ecosystem
 private:
 	int GrassAmount = 500;
 	int GrassGrowRate = 10;
-	const int BunnyCount = 5;
-	const int FoxCount = 5;
+	const int BunnyCount = 10;
+	const int FoxCount = 10;
 	const int MaxBunnyCount = 1000;
 	const int MaxBunnyRedcutionPercent = 50;
 

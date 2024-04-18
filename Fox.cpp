@@ -10,6 +10,9 @@ Fox::Fox(Ecosystem* system)
 	FoodAmount = 1;
 	DeathAge = 20;
 	ReproduceAge = 2;
+	RemainingTurns = -1;
+	ReproducedAtTurn = 0;
+	Gender = rand() % 2;
 	Age = 0;
 
 	if (system)
@@ -38,27 +41,20 @@ bool Fox::Feed(Ecosystem* System)
 
 		if (numOfBunnies > 0)
 		{
+			//TODO Find random  bunny from a list which doesnt have ghost bunnies;
 			int randomId = rand() % numOfBunnies;
-			std::string bunnyName = System->EntitiesMap[EntityType::Bunny][randomId]->Name;
-			std::cout << "Fox " << Name << " Ate " << bunnyName << std::endl;
+			Bunny* BunnyToEat = dynamic_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
 
-			if (System->EntitiesMap[EntityType::Bunny][randomId]->ReproduceAge > 0)
+			if (BunnyToEat && !BunnyToEat->Ghost)
 			{
+				std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
 				System->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
-				Bunny* BunnyFood = dynamic_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
-
-				if (BunnyFood)
-				{
-					BunnyFood->Ghost = true;
-				}
+				BunnyToEat->Ghost = true;
+				return true;
 			}
+		}
 
-			return true;
-		}
-		else
-		{
-			std::cout << "Fox " << Name << " Starved " << std::endl;
-		}
+		std::cout << "Fox " << Name << " Starved " << std::endl;
 	}
 
 	return Age < HuntingAge;
@@ -66,9 +62,25 @@ bool Fox::Feed(Ecosystem* System)
 
 void Fox::Reproduce(Ecosystem* System)
 {
-	if ((Age >= ReproduceAge) && (RemainingTurns <= 0))
+	if ((Age >= ReproduceAge) && (RemainingTurns <= 0) && (ReproducedAtTurn < System->Turn))
 	{
-		std::cout << "Fox " << Name << " reproduced! " << std::endl;
+		if (Gender == 0)
+		{
+			ReproducedAtTurn = System->Turn;
+
+			for (auto it = System->EntitiesMap[EntityType::Fox].begin(); it != System->EntitiesMap[EntityType::Fox].end(); ++it)
+			{
+				Fox* AdultFox = dynamic_cast<Fox*>((*it));
+
+				if ((AdultFox->Gender == 1) && (AdultFox->ReproduceAge > 0) && (AdultFox->Age >= AdultFox->ReproduceAge) && (AdultFox->RemainingTurns <= 0) && (AdultFox->ReproducedAtTurn < System->Turn))
+				{
+					AdultFox->ReproducedAtTurn = System->Turn;
+					std::cout << "Fox " << Name << " reproduced with " << (*it)->Name << std::endl;
+					System->AddEntity(EntityType::Fox, new Fox(System), true);
+					break;
+				}
+			}
+		}
 	}
 }
 

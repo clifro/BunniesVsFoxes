@@ -62,16 +62,20 @@ void Ecosystem::ProcessLife(EntityType Type)
 	{
 		if ((*it)->AgeUp(this) && (*it)->Feed(this))
 		{
-			(*it)->Reproduce(this);
 			it++;
 		}
 		else
 		{
 			(*it)->Kill();
-			(*it) = 0;
-			delete* it;
+			delete (*it);
 			it = EntitiesMap[Type].erase(it);
 		}
+	}
+
+	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
+	{
+		(*it)->Reproduce(this);
+		it++;
 	}
 
 	AddReproducedEntitiesInEcosystem();
