@@ -9,10 +9,11 @@ class Entity;
 class Ecosystem
 {
 private:
-	int GrassAmount = 500;
+	int MaxGrassAmount = 500;
+	int GrassAmount = MaxGrassAmount;
 	int GrassGrowRate = 10;
-	const int BunnyCount = 10;
-	const int FoxCount = 10;
+	const int BunnyCount = 5;
+	const int FoxCount = 5;
 	const int MaxBunnyCount = 1000;
 	const int MaxBunnyRedcutionPercent = 50;
 
@@ -22,6 +23,7 @@ public:
 	int Turn = 0;
 	Ecosystem();
 	inline int GetGrassAmount() { return GrassAmount; }
+	inline int GetMaxGrassAmount() { return MaxGrassAmount; }
 	inline void ConsumeGrass(int& Amount) { GrassAmount -= Amount; }
 
 	void Init();

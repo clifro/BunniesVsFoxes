@@ -41,6 +41,12 @@ bool Ecosystem::SimulateEcosystem()
 	Turn++;
 
 	GrassAmount += GrassGrowRate;
+
+	if (GrassAmount > MaxGrassAmount)
+	{
+		GrassAmount = MaxGrassAmount;
+	}
+
 	std::cout << "Turn : " << Turn << " Grass is " << GrassAmount << std::endl;
 
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)

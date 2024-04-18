@@ -14,6 +14,7 @@ Fox::Fox(Ecosystem* system)
 	ReproducedAtTurn = 0;
 	Gender = rand() % 2;
 	Age = 0;
+	FeedingAgain = false;
 
 	if (system)
 	{
@@ -49,7 +50,32 @@ bool Fox::Feed(Ecosystem* System)
 			{
 				std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
 				System->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
-				BunnyToEat->Ghost = true;
+
+				if (!BunnyToEat->Mutant)
+				{
+					BunnyToEat->Ghost = true;
+
+					if (!FeedingAgain && System->GetGrassAmount() < (20 * System->GetMaxGrassAmount() / 100))
+					{
+						bool FeedAgainChance = (rand() % 100 <= 50);
+
+						if (FeedAgainChance)
+						{
+							FeedingAgain = true;
+							Feed(System);
+						}
+					}
+				}
+				else
+				{
+					bool death = ((rand() % 100) <= 30);
+					if (death)
+					{
+						return false;
+					}
+				}
+				
+				FeedingAgain = false;
 				return true;
 			}
 		}
