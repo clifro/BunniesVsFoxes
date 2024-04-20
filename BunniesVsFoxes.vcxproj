@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="Bunny.h" />
     <ClInclude Include="Ecosystem.h" />
+    <ClInclude Include="EcosystemData.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Fox.h" />
   </ItemGroup>

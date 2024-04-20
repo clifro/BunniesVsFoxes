@@ -2,13 +2,18 @@
 #include "Ecosystem.h"
 #include<iostream>
 
-Bunny::Bunny(Ecosystem* system, Entity* Mother)
+const int MutantChance = 2;
+
+
+
+Bunny::Bunny(Ecosystem* system, Entity* Mother) : Parent(Mother)
 {
+	//USE INITIALIZER LIST
 	Parent = Mother;
 	ColorAssigned = Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color));
 	RemainingTurns = -1;
 	FoodType = EntityType::Grass;
-	FoodAmount = 2;
+	FoodAmount = 2; //TODO USE CONSTS
 	DeathAge = 10;
 	ReproduceAge = 2;
 	ReproducedAtTurn = 0;
@@ -21,7 +26,7 @@ Bunny::Bunny(Ecosystem* system, Entity* Mother)
 		Name = system->RandomName(4);
 	}
 
-	bool ConvertToMutant = ((rand() % 100) <= 2);
+	bool ConvertToMutant = ((rand() % 100) <= MutantChance); //use consts
 
 	if (ConvertToMutant)
 	{
@@ -41,16 +46,11 @@ Bunny::Bunny(Ecosystem* system, Entity* Mother)
 
 bool Bunny::AgeUp(Ecosystem* system)
 {
-	if (Ghost && RemainingTurns > 0)
+	if (Ghost && RemainingTurns > 0) //TODO Naming, IsGhost IsMutant
 	{
 		RemainingTurns--;
 
-		if (RemainingTurns == 0)
-		{
-			return false;
-		}
-
-		return true;
+		return RemainingTurns != 0;
 	}
 	
 	++Age;
@@ -59,7 +59,7 @@ bool Bunny::AgeUp(Ecosystem* system)
 
 bool Bunny::Feed(Ecosystem* System)
 {
-	if (System)
+	if (System) // no need to check
 	{
 		if (Ghost)
 		{
@@ -80,22 +80,33 @@ bool Bunny::Feed(Ecosystem* System)
 
 void Bunny::Reproduce(Ecosystem* System)
 {
-	if (!Mutant && !Ghost && (Age >= ReproduceAge) && (ReproducedAtTurn < System->Turn))
+	if (!Mutant && !Ghost && (Age >= ReproduceAge) && (ReproducedAtTurn < System->Turn)) // TODO GETTER
 	{
-		if (Gender == 0)
+		//TODO
+		/*if (!x)
+		{
+			return;
+		}
+		if (!y)
+		{
+			return;
+		}*/
+		//TODO use bool for ReproducedAtTurn
+		if (Gender == 0) // TODO Use male female enum , COMBINE THIS CHECK
 		{
 			for (auto it = System->EntitiesMap[EntityType::Bunny].begin(); it != System->EntitiesMap[EntityType::Bunny].end(); ++it)
 			{
-				Bunny* AdultBunny = dynamic_cast<Bunny*>((*it));
+				Bunny* AdultBunny = static_cast<Bunny*>((*it)); // USE DYNAMIC LESS FREQUENT
 
 				if (AdultBunny)
 				{
 					AdultBunny->ReproducedAtTurn = System->Turn;
+					//TODO order my age 
 
 					if ((AdultBunny->Gender == 1) && (AdultBunny->ReproduceAge > 0) && (AdultBunny->Age >= AdultBunny->ReproduceAge) && !AdultBunny->Mutant && !AdultBunny->Ghost)
 					{
 						std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
-						System->AddEntity(EntityType::Bunny, new Bunny(System, AdultBunny), true);
+						System->AddReproducedEntity(EntityType::Bunny, new Bunny(System, AdultBunny));
 					}
 				}
 			}

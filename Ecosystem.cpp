@@ -5,21 +5,39 @@
 #include<iostream>
 #include<iterator>
 
-Ecosystem::Ecosystem()
+Ecosystem* Ecosystem::EcosystemManager = NULL;
+
+Ecosystem::Ecosystem() : GrassAmount(EcosystemData::MaxGrass)
 {
 	Init();
 }
 
-void Ecosystem::AddEntity(EntityType Type, Entity* EntityData, bool Reproduced)
+Ecosystem::~Ecosystem()
 {
-	if (Reproduced)
+	std::cout << "Destroying Ecosystem........ " << std::endl;
+	Cleanup();
+}
+
+Ecosystem* Ecosystem::GetEcosystem()
+{
+	if (!EcosystemManager)
 	{
-		ReproducedEntitiesMap[Type].push_back(EntityData);
+		std::cout << "Initializing Ecosystem........ " << std::endl;
+		EcosystemManager = new Ecosystem();
+		std::cout << "Initialized Ecosystem! " << std::endl;
 	}
-	else
-	{
-		EntitiesMap[Type].push_back(EntityData);
-	}
+
+	return EcosystemManager;
+}
+
+void Ecosystem::AddEntity(EntityType Type, Entity* Entity)
+{
+	EntitiesMap[Type].push_back(Entity);
+}
+
+void Ecosystem::AddReproducedEntity(EntityType Type, Entity* Entity)
+{
+	ReproducedEntitiesMap[Type].push_back(Entity);
 }
 
 void Ecosystem::AddReproducedEntitiesInEcosystem()
@@ -28,7 +46,9 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 	{
 		for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 		{
-			EntitiesMap[i->first].insert(EntitiesMap[i->first].end(), ReproducedEntitiesMap[i->first].begin(), ReproducedEntitiesMap[i->first].end());
+			std::vector<Entity*>& Entities = EntitiesMap[i->first];
+			std::vector<Entity*>& ReproducedEntities = ReproducedEntitiesMap[i->first];
+			Entities.insert(Entities.end(), ReproducedEntities.begin(), ReproducedEntities.end());
 		}
 
 		ReproducedEntitiesMap.clear();
@@ -37,14 +57,12 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 
 bool Ecosystem::SimulateEcosystem()
 {
-	bool endSimulation = true;
 	Turn++;
+	GrassAmount += EcosystemData::GrassGrowthRate;
 
-	GrassAmount += GrassGrowRate;
-
-	if (GrassAmount > MaxGrassAmount)
+	if (GrassAmount > EcosystemData::MaxGrass) 
 	{
-		GrassAmount = MaxGrassAmount;
+		GrassAmount = EcosystemData::MaxGrass;
 	}
 
 	std::cout << "Turn : " << Turn << " Grass is " << GrassAmount << std::endl;
@@ -52,35 +70,39 @@ bool Ecosystem::SimulateEcosystem()
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 	{
 		ProcessLife(i->first);
+		std::vector<Entity*>& Entities = EntitiesMap[i->first];
 
-		if (EntitiesMap[i->first].size() != 0)
+		if (Entities.size() != 0)
 		{
-			endSimulation = false;
+			return true;
 		}
 	}
 
-	return !endSimulation;
+	return false;
 }
 
 void Ecosystem::ProcessLife(EntityType Type)
 {
 	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
 	{
-		if ((*it)->AgeUp(this) && (*it)->Feed(this))
+		Entity* EntityToProcess = *it;
+
+		if (EntityToProcess->AgeUp(this) && EntityToProcess->Feed(this))
 		{
 			it++;
 		}
 		else
 		{
-			(*it)->Kill();
-			delete (*it);
+			EntityToProcess->Kill();
+			delete EntityToProcess;
 			it = EntitiesMap[Type].erase(it);
 		}
 	}
 
 	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
 	{
-		(*it)->Reproduce(this);
+		Entity* EntityToProcess = *it;
+		EntityToProcess->Reproduce(this);
 		it++;
 	}
 
@@ -89,12 +111,12 @@ void Ecosystem::ProcessLife(EntityType Type)
 
 void Ecosystem::Init()
 {
-	for (int i = 0; i < BunnyCount; i++)
+	for (int i = 0; i < EcosystemData::BunnyCount; i++)
 	{
 		AddEntity(EntityType::Bunny, new Bunny(this));
 	}
 
-	for (int i = 0; i < FoxCount; i++)
+	for (int i = 0; i < EcosystemData::FoxCount; i++)
 	{
 		AddEntity(EntityType::Fox, new Fox(this));
 	}
@@ -112,18 +134,42 @@ std::string Ecosystem::RandomName(int length) {
 
 	for (int i = 0; i < length; i++) {
 
-		if (random < 2 && count < 2) {
+		if (random < 1 && count < 1) {
 			name = name + consonents[rand() % 19];
 			count++;
 		}
-		else {
+		else 
+		{
 			name = name + vowels[rand() % 5];
 			count = 0;
 		}
 
 		random = rand() % 2;
-
 	}
 
 	return name;
+}
+
+void Ecosystem::Cleanup()
+{
+	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
+	{
+		std::vector<Entity*>& Entities = EntitiesMap[i->first];
+
+		for (auto it = Entities.begin(); it != Entities.end();)
+		{
+			Entity* EntityToProcess = *it;
+			delete EntityToProcess;
+			it = Entities.erase(it);
+		}
+
+		std::vector<Entity*>& ReproducedEntities = ReproducedEntitiesMap[i->first];
+
+		for (auto it = ReproducedEntities.begin(); it != ReproducedEntities.end();)
+		{
+			Entity* EntityToProcess = *it;
+			delete EntityToProcess;
+			it = ReproducedEntities.erase(it);
+		}
+	}
 }

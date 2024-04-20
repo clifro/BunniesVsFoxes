@@ -42,9 +42,10 @@ bool Fox::Feed(Ecosystem* System)
 
 		if (numOfBunnies > 0)
 		{
-			//TODO Find random  bunny from a list which doesnt have ghost bunnies;
-			int randomId = rand() % numOfBunnies;
-			Bunny* BunnyToEat = dynamic_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
+			//TODO Find random  bunny from a list which doesnt have ghost bunnies; assert how to usewe , when to use
+			//use const if things dont change
+			const int randomId = rand() % numOfBunnies;
+			Bunny* BunnyToEat = static_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
 
 			if (BunnyToEat && !BunnyToEat->Ghost)
 			{
@@ -55,9 +56,9 @@ bool Fox::Feed(Ecosystem* System)
 				{
 					BunnyToEat->Ghost = true;
 
-					if (!FeedingAgain && System->GetGrassAmount() < (20 * System->GetMaxGrassAmount() / 100))
+					if (!FeedingAgain && System->GetGrassAmount() < (20 * EcosystemData::MaxGrass / 100))
 					{
-						bool FeedAgainChance = (rand() % 100 <= 50);
+						const bool FeedAgainChance = (rand() % 100 <= 50); // TODO loop for feeding number of times
 
 						if (FeedAgainChance)
 						{
@@ -68,7 +69,7 @@ bool Fox::Feed(Ecosystem* System)
 				}
 				else
 				{
-					bool death = ((rand() % 100) <= 30);
+					const bool death = ((rand() % 100) <= 30);
 					if (death)
 					{
 						return false;
@@ -88,6 +89,8 @@ bool Fox::Feed(Ecosystem* System)
 
 void Fox::Reproduce(Ecosystem* System)
 {
+	//todo AdultFox->ReproduceAge > 0 no need to check
+	//TODO apply the indentations and cast
 	if ((Age >= ReproduceAge) && (RemainingTurns <= 0) && (ReproducedAtTurn < System->Turn))
 	{
 		if (Gender == 0)
@@ -102,7 +105,7 @@ void Fox::Reproduce(Ecosystem* System)
 				{
 					AdultFox->ReproducedAtTurn = System->Turn;
 					std::cout << "Fox " << Name << " reproduced with " << (*it)->Name << std::endl;
-					System->AddEntity(EntityType::Fox, new Fox(System), true);
+					System->AddReproducedEntity(EntityType::Fox, new Fox(System));
 					break;
 				}
 			}

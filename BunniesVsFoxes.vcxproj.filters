@@ -53,5 +53,8 @@
     <ClInclude Include="Fox.h">
       <Filter>Source Files\Ecosystem\Animals</Filter>
     </ClInclude>
+    <ClInclude Include="EcosystemData.h">
+      <Filter>Source Files\Ecosystem</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

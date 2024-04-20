@@ -40,8 +40,8 @@ public:
 	int Age;
 	int ReproducedAtTurn;
 	bool Gender; // 0 M, 1 F
-	virtual bool AgeUp(Ecosystem* system) = 0;
-	virtual bool Feed(Ecosystem* system) = 0;
+	virtual bool AgeUp(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
+	virtual bool Feed(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
 	virtual void Kill() = 0;
-	virtual void Reproduce(Ecosystem* system) = 0;
+	virtual void Reproduce(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
 };
