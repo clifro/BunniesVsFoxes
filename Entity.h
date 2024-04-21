@@ -41,7 +41,7 @@ protected:
 public:
 
 	typedef Entity Super;
-	Entity(EntityType InType, std::string Name, int InReproduceAge, int InDeathAge, int InFoodAmount, EntityType InFoodType, Gender InGender, Color InColor);
+	Entity(EntityType InType, std::string InName, int InReproduceAge, int InDeathAge, int InFoodAmount, EntityType InFoodType, Gender InGender, Color InColor);
 	~Entity();
 	Color ColorAssigned;
 	std::string Name;

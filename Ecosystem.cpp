@@ -57,6 +57,7 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 
 bool Ecosystem::SimulateEcosystem()
 {
+	bool CanSimulate = false;
 	Turn++;
 	GrassAmount += EcosystemData::GrassGrowthRate;
 
@@ -74,11 +75,11 @@ bool Ecosystem::SimulateEcosystem()
 
 		if (Entities.size() != 0)
 		{
-			return true;
+			CanSimulate = true;
 		}
 	}
 
-	return false;
+	return CanSimulate;
 }
 
 void Ecosystem::ProcessLife(EntityType Type)

@@ -20,6 +20,12 @@ bool Fox::AgeUp()
 
 	Reproduced = false;
 	++Age;
+
+	if (Age >= DeathAge)
+	{
+		std::cout << "Fox " << Name << " aged up! " << std::endl;
+	}
+
 	return Age < DeathAge;
 }
 

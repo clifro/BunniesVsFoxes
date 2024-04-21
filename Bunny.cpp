@@ -34,6 +34,12 @@ bool Bunny::AgeUp()
 	
 	Reproduced = false;
 	++Age;
+
+	if (Age >= DeathAge)
+	{
+		std::cout << "Bunny " << Name << " aged up! " << std::endl;
+	}
+
 	return Age < DeathAge;
 }
 
@@ -78,11 +84,11 @@ void Bunny::Reproduce()
 			return;
 		}
 
-		AdultBunny->Reproduced = true;
 		//TODO order by age 
 
 		if ((AdultBunny->EntityGender == Gender::Female) && AdultBunny->CanReproduce())
 		{
+			AdultBunny->Reproduced = true;
 			std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
 			Ecosystem::GetEcosystem()->AddReproducedEntity(EntityType::Bunny, new Bunny(AdultBunny));
 		}
