@@ -6,10 +6,11 @@ class Fox : public Entity
 {
 public:
 	int HuntingAge;
-	bool FeedingAgain;
-	Fox(Ecosystem* system);
-	bool AgeUp(Ecosystem* system) override;
-	bool Feed(Ecosystem* system) override;
+	int FeedingAgainCounter;
+	Fox();
+	bool AgeUp() override;
+	bool Feed() override;
 	void Kill() override;
-	void Reproduce(Ecosystem* system) override;
+	void Reproduce() override;
+	bool CanReproduce() override;
 };

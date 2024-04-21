@@ -2,113 +2,108 @@
 #include "Ecosystem.h"
 #include<iostream>
 #include"Bunny.h"
+#include"Ecosystem.h"
 
-Fox::Fox(Ecosystem* system)
+Fox::Fox() : HuntingAge(EcosystemData::FoxHuntingAge), FeedingAgainCounter(0),
+Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), EcosystemData::FoxReproduceAge, EcosystemData::FoxDeathAge, EcosystemData::FoxFoodAmount,
+	EntityType::Grass, rand() % 2 ? Gender::Female : Gender::Male, static_cast<Color>(rand() % sizeof(Color)))
 {
-	HuntingAge = 2;
-	FoodType = EntityType::Bunny;
-	FoodAmount = 1;
-	DeathAge = 20;
-	ReproduceAge = 2;
-	RemainingTurns = -1;
-	ReproducedAtTurn = 0;
-	Gender = rand() % 2;
-	Age = 0;
-	FeedingAgain = false;
-
-	if (system)
-	{
-		Name = system->RandomName(4);
-		std::cout << "Fox " << Name << " is born! " << std::endl;
-	}
+	std::cout << "Fox " << Name << " is born! " << std::endl;
 }
 
-bool Fox::AgeUp(Ecosystem* system)
+bool Fox::AgeUp()
 {
 	if (RemainingTurns > 0)
 	{
 		RemainingTurns--;
 	}
 
+	Reproduced = false;
 	++Age;
 	return Age < DeathAge;
 }
 
-bool Fox::Feed(Ecosystem* System)
+bool Fox::Feed()
 {
-	if (System && (Age >= HuntingAge))
+	if (Age < HuntingAge)
 	{
-		int numOfBunnies = System->EntitiesMap[EntityType::Bunny].size();
+		return true;
+	}
 
-		if (numOfBunnies > 0)
+	int numOfBunnies = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny].size();
+
+	if (numOfBunnies == 0)
+	{
+		std::cout << "Fox " << Name << " Starved " << std::endl;
+		return false;
+	}
+
+	//TODO Find random  bunny from a list which doesnt have ghost bunnies
+	const int randomId = rand() % numOfBunnies;
+	Bunny* BunnyToEat = static_cast<Bunny*>(Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId]);
+
+	if (BunnyToEat && !BunnyToEat->IsGhost)
+	{
+		std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
+		Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
+
+		if (!BunnyToEat->IsMutant)
 		{
-			//TODO Find random  bunny from a list which doesnt have ghost bunnies; assert how to usewe , when to use
-			//use const if things dont change
-			const int randomId = rand() % numOfBunnies;
-			Bunny* BunnyToEat = static_cast<Bunny*>(System->EntitiesMap[EntityType::Bunny][randomId]);
-
-			if (BunnyToEat && !BunnyToEat->Ghost)
+			BunnyToEat->IsGhost = true;
+		}
+		else
+		{
+			const bool death = ((rand() % 100) <= EcosystemData::FoxDeathDeathChanceEatingMutant);
+			if (death)
 			{
-				std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
-				System->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
-
-				if (!BunnyToEat->Mutant)
-				{
-					BunnyToEat->Ghost = true;
-
-					if (!FeedingAgain && System->GetGrassAmount() < (20 * EcosystemData::MaxGrass / 100))
-					{
-						const bool FeedAgainChance = (rand() % 100 <= 50); // TODO loop for feeding number of times
-
-						if (FeedAgainChance)
-						{
-							FeedingAgain = true;
-							Feed(System);
-						}
-					}
-				}
-				else
-				{
-					const bool death = ((rand() % 100) <= 30);
-					if (death)
-					{
-						return false;
-					}
-				}
-				
-				FeedingAgain = false;
-				return true;
+				return false;
 			}
 		}
 
-		std::cout << "Fox " << Name << " Starved " << std::endl;
-	}
+		const bool FeedAgainChance = (rand() % 100 <= EcosystemData::FoxFeedAgainChance);
+		const bool IsGrassLess = Ecosystem::GetEcosystem()->GetGrassAmount() < (EcosystemData::FoxFeedAgainChanceWithGrassAmount * EcosystemData::MaxGrass / 100);
 
-	return Age < HuntingAge;
+		if (FeedAgainChance && (FeedingAgainCounter == 0) && IsGrassLess)
+		{
+			FeedingAgainCounter = EcosystemData::FoxFeedAgainCount;
+
+			for (int i = FeedingAgainCounter; i > 0; --FeedingAgainCounter)
+			{
+				std::cout << "Fox " << Name << " Feeding Again " << std::endl;
+				Feed();
+			}
+		}
+
+		return true;
+	}
 }
 
-void Fox::Reproduce(Ecosystem* System)
+
+bool Fox::CanReproduce()
 {
-	//todo AdultFox->ReproduceAge > 0 no need to check
-	//TODO apply the indentations and cast
-	if ((Age >= ReproduceAge) && (RemainingTurns <= 0) && (ReproducedAtTurn < System->Turn))
+	return (Age >= ReproduceAge) && (RemainingTurns <= 0) && !Reproduced;
+}
+
+void Fox::Reproduce()
+{
+	if ((EntityGender != Gender::Male) || !CanReproduce())
 	{
-		if (Gender == 0)
+		return;
+	}
+
+	Reproduced = true;
+	std::vector<Entity*>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Fox];
+
+	for (auto it = Entities.begin(); it != Entities.end(); ++it)
+	{
+		Fox* AdultFox = static_cast<Fox*>((*it));
+
+		if ((AdultFox->EntityGender == Gender::Female) && AdultFox->CanReproduce())
 		{
-			ReproducedAtTurn = System->Turn;
-
-			for (auto it = System->EntitiesMap[EntityType::Fox].begin(); it != System->EntitiesMap[EntityType::Fox].end(); ++it)
-			{
-				Fox* AdultFox = dynamic_cast<Fox*>((*it));
-
-				if ((AdultFox->Gender == 1) && (AdultFox->ReproduceAge > 0) && (AdultFox->Age >= AdultFox->ReproduceAge) && (AdultFox->RemainingTurns <= 0) && (AdultFox->ReproducedAtTurn < System->Turn))
-				{
-					AdultFox->ReproducedAtTurn = System->Turn;
-					std::cout << "Fox " << Name << " reproduced with " << (*it)->Name << std::endl;
-					System->AddReproducedEntity(EntityType::Fox, new Fox(System));
-					break;
-				}
-			}
+			AdultFox->Reproduced = true;
+			std::cout << "Fox " << Name << " reproduced with " << (*it)->Name << std::endl;
+			Ecosystem::GetEcosystem()->AddReproducedEntity(EntityType::Fox, new Fox());
+			break;
 		}
 	}
 }

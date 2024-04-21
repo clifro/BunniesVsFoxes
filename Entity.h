@@ -23,6 +23,12 @@ enum class EntityType
 	Fox
 };
 
+enum class Gender
+{
+	Male,
+	Female
+};
+
 class Entity
 {
 protected:
@@ -33,15 +39,20 @@ protected:
 	int DeathAge;
 
 public:
+
+	typedef Entity Super;
+	Entity(EntityType InType, std::string Name, int InReproduceAge, int InDeathAge, int InFoodAmount, EntityType InFoodType, Gender InGender, Color InColor);
+	~Entity();
 	Color ColorAssigned;
 	std::string Name;
 	int ReproduceAge;
 	int RemainingTurns;
 	int Age;
-	int ReproducedAtTurn;
-	bool Gender; // 0 M, 1 F
-	virtual bool AgeUp(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
-	virtual bool Feed(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
+	bool Reproduced;
+	Gender EntityGender;
+	virtual bool AgeUp() = 0;
+	virtual bool Feed() = 0;
 	virtual void Kill() = 0;
-	virtual void Reproduce(Ecosystem* system) = 0; //TODO Pass by ref ,  not expecting null pointer
+	virtual void Reproduce() = 0;
+	virtual bool CanReproduce() = 0;
 };

@@ -1,122 +1,97 @@
 #include "Bunny.h"
 #include "Ecosystem.h"
+#include "EcosystemData.h"
 #include<iostream>
 
-const int MutantChance = 2;
-
-
-
-Bunny::Bunny(Ecosystem* system, Entity* Mother) : Parent(Mother)
+Bunny::Bunny(Bunny* Mother) : Parent(Mother), IsGhost(false), IsMutant(false),
+Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge, EcosystemData::BunnyFoodAmount,
+	EntityType::Grass, rand() % 2 ? Gender::Female : Gender::Male,
+	Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color)))
 {
-	//USE INITIALIZER LIST
-	Parent = Mother;
-	ColorAssigned = Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color));
-	RemainingTurns = -1;
-	FoodType = EntityType::Grass;
-	FoodAmount = 2; //TODO USE CONSTS
-	DeathAge = 10;
-	ReproduceAge = 2;
-	ReproducedAtTurn = 0;
-	Age = 0;
-	Gender = rand() % 2;
-	Ghost = false;
-
-	if (system)
-	{
-		Name = system->RandomName(4);
-	}
-
-	bool ConvertToMutant = ((rand() % 100) <= MutantChance); //use consts
+	bool ConvertToMutant = ((rand() % 100) <= EcosystemData::BunnyMutantChance);
+	std::string GenderText = (static_cast<int>(EntityGender) ? "Female" : "Male");
 
 	if (ConvertToMutant)
 	{
-		DeathAge = 50;
-		FoodAmount = 4;
-		ReproduceAge = 0;
+		DeathAge = EcosystemData::BunnyMutantDeathAge;
+		FoodAmount = EcosystemData::BunnyMutantFoodAmount;
+		ReproduceAge = EcosystemData::BunnyMutantReproduceAge;
 		Name = "Mutant " + Name;
-		std::cout << Name << " is born! " << Gender << std::endl;
-		Mutant = ConvertToMutant;
+		IsMutant = ConvertToMutant;
 	}
-	else
-	{
-		Mutant = false;
-		std::cout << "Bunny " << Name << " is born! " << Gender << std::endl;
-	}
+	
+	std::cout << "Bunny " << Name << " is born! " << GenderText << std::endl;
 }
 
-bool Bunny::AgeUp(Ecosystem* system)
+bool Bunny::AgeUp()
 {
-	if (Ghost && RemainingTurns > 0) //TODO Naming, IsGhost IsMutant
+	if (IsGhost && RemainingTurns > 0)
 	{
 		RemainingTurns--;
 
 		return RemainingTurns != 0;
 	}
 	
+	Reproduced = false;
 	++Age;
 	return Age < DeathAge;
 }
 
-bool Bunny::Feed(Ecosystem* System)
+bool Bunny::Feed()
 {
-	if (System) // no need to check
+	if (IsGhost)
 	{
-		if (Ghost)
-		{
-			return true;
-		}
+		return true;
+	}
 
-		if (System->GetGrassAmount() >= FoodAmount)
-		{
-			System->ConsumeGrass(FoodAmount);
-			std::cout << "Bunny " << Name << " ate! " << std::endl;
-			return true;
-		}
+	if (Ecosystem::GetEcosystem()->GetGrassAmount() >= FoodAmount)
+	{
+		Ecosystem::GetEcosystem()->ConsumeGrass(FoodAmount);
+		std::cout << "Bunny " << Name << " ate! " << std::endl;
+		return true;
 	}
 
 	std::cout << "Bunny " << Name << " starved! " << std::endl;
 	return false;
 }
 
-void Bunny::Reproduce(Ecosystem* System)
+bool Bunny::CanReproduce()
 {
-	if (!Mutant && !Ghost && (Age >= ReproduceAge) && (ReproducedAtTurn < System->Turn)) // TODO GETTER
+	return !IsMutant && !IsGhost && (Age >= ReproduceAge) && !Reproduced;
+}
+
+void Bunny::Reproduce()
+{
+	if ((EntityGender != Gender::Male) || !CanReproduce())
 	{
-		//TODO
-		/*if (!x)
+		return;
+	}
+
+	std::vector<Entity*>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
+
+	for (auto it = Entities.begin(); it != Entities.end(); ++it)
+	{
+		Bunny* AdultBunny = static_cast<Bunny*>((*it));
+
+		if (!AdultBunny)
 		{
 			return;
 		}
-		if (!y)
-		{
-			return;
-		}*/
-		//TODO use bool for ReproducedAtTurn
-		if (Gender == 0) // TODO Use male female enum , COMBINE THIS CHECK
-		{
-			for (auto it = System->EntitiesMap[EntityType::Bunny].begin(); it != System->EntitiesMap[EntityType::Bunny].end(); ++it)
-			{
-				Bunny* AdultBunny = static_cast<Bunny*>((*it)); // USE DYNAMIC LESS FREQUENT
 
-				if (AdultBunny)
-				{
-					AdultBunny->ReproducedAtTurn = System->Turn;
-					//TODO order my age 
+		AdultBunny->Reproduced = true;
+		//TODO order by age 
 
-					if ((AdultBunny->Gender == 1) && (AdultBunny->ReproduceAge > 0) && (AdultBunny->Age >= AdultBunny->ReproduceAge) && !AdultBunny->Mutant && !AdultBunny->Ghost)
-					{
-						std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
-						System->AddReproducedEntity(EntityType::Bunny, new Bunny(System, AdultBunny));
-					}
-				}
-			}
+		if ((AdultBunny->EntityGender == Gender::Female) && AdultBunny->CanReproduce())
+		{
+			std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
+			Ecosystem::GetEcosystem()->AddReproducedEntity(EntityType::Bunny, new Bunny(AdultBunny));
 		}
 	}
 }
 
 void Bunny::Kill()
 {
-	if (Ghost)
+	if (IsGhost)
 	{
 		std::cout << "Ghost Bunny " << Name << " goes to the afterlife! " << std::endl;
 

@@ -9,7 +9,7 @@ Ecosystem* Ecosystem::EcosystemManager = NULL;
 
 Ecosystem::Ecosystem() : GrassAmount(EcosystemData::MaxGrass)
 {
-	Init();
+	//Calling Init here calls new bunny creation constructor which calls the getecosytem recreating new memory allocation
 }
 
 Ecosystem::~Ecosystem()
@@ -87,7 +87,7 @@ void Ecosystem::ProcessLife(EntityType Type)
 	{
 		Entity* EntityToProcess = *it;
 
-		if (EntityToProcess->AgeUp(this) && EntityToProcess->Feed(this))
+		if (EntityToProcess->AgeUp() && EntityToProcess->Feed())
 		{
 			it++;
 		}
@@ -102,7 +102,7 @@ void Ecosystem::ProcessLife(EntityType Type)
 	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
 	{
 		Entity* EntityToProcess = *it;
-		EntityToProcess->Reproduce(this);
+		EntityToProcess->Reproduce();
 		it++;
 	}
 
@@ -113,12 +113,12 @@ void Ecosystem::Init()
 {
 	for (int i = 0; i < EcosystemData::BunnyCount; i++)
 	{
-		AddEntity(EntityType::Bunny, new Bunny(this));
+		AddEntity(EntityType::Bunny, new Bunny());
 	}
 
 	for (int i = 0; i < EcosystemData::FoxCount; i++)
 	{
-		AddEntity(EntityType::Fox, new Fox(this));
+		AddEntity(EntityType::Fox, new Fox());
 	}
 }
 
