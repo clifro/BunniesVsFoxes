@@ -5,8 +5,10 @@
 #include"Ecosystem.h"
 
 Fox::Fox() : HuntingAge(EcosystemData::FoxHuntingAge), FeedingAgainCounter(0),
-Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), EcosystemData::FoxReproduceAge, EcosystemData::FoxDeathAge, EcosystemData::FoxFoodAmount,
-	EntityType::Grass, rand() % 2 ? Gender::Female : Gender::Male, static_cast<Color>(rand() % sizeof(Color)))
+Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), 
+	EcosystemData::FoxReproduceAge, EcosystemData::FoxDeathAge, 
+	EcosystemData::FoxFoodAmount, EntityType::Grass, 
+	rand() % 2 ? Gender::Female : Gender::Male, static_cast<Color>(rand() % sizeof(Color)))
 {
 	std::cout << "Fox " << Name << " is born! " << std::endl;
 }

@@ -4,8 +4,10 @@
 #include<iostream>
 
 Bunny::Bunny(Bunny* Mother) : Parent(Mother), IsGhost(false), IsMutant(false),
-Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge, EcosystemData::BunnyFoodAmount,
-	EntityType::Grass, rand() % 2 ? Gender::Female : Gender::Male,
+Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), 
+	EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge, 
+	EcosystemData::BunnyFoodAmount, EntityType::Grass, 
+	rand() % 2 ? Gender::Female : Gender::Male,
 	Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color)))
 {
 	bool ConvertToMutant = ((rand() % 100) <= EcosystemData::BunnyMutantChance);
@@ -22,6 +24,8 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), EcosystemData
 	
 	std::cout << "Bunny " << Name << " is born! " << GenderText << std::endl;
 }
+
+using EntityVecRef = std::vector<Entity*>&;
 
 bool Bunny::AgeUp()
 {
@@ -73,7 +77,7 @@ void Bunny::Reproduce()
 		return;
 	}
 
-	std::vector<Entity*>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
+	EntityVecRef Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
 
 	for (auto it = Entities.begin(); it != Entities.end(); ++it)
 	{
