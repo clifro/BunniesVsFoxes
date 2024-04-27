@@ -30,14 +30,14 @@ Ecosystem* Ecosystem::GetEcosystem()
 	return EcosystemManager;
 }
 
-void Ecosystem::AddEntity(EntityType Type, Entity* Entity)
+void Ecosystem::AddEntity(EntityType InType, Entity* InEntity)
 {
-	EntitiesMap[Type].push_back(Entity);
+	EntitiesMap[InType].push_back(std::shared_ptr<Entity>(InEntity));
 }
 
-void Ecosystem::AddReproducedEntity(EntityType Type, Entity* Entity)
+void Ecosystem::AddReproducedEntity(EntityType InType, Entity* InEntity)
 {
-	ReproducedEntitiesMap[Type].push_back(Entity);
+	ReproducedEntitiesMap[InType].push_back(std::shared_ptr<Entity>(InEntity));
 }
 
 void Ecosystem::AddReproducedEntitiesInEcosystem()
@@ -46,8 +46,8 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 	{
 		for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 		{
-			std::vector<Entity*>& Entities = EntitiesMap[i->first];
-			std::vector<Entity*>& ReproducedEntities = ReproducedEntitiesMap[i->first];
+			std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
+			std::vector<std::shared_ptr<Entity>>& ReproducedEntities = ReproducedEntitiesMap[i->first];
 			Entities.insert(Entities.end(), ReproducedEntities.begin(), ReproducedEntities.end());
 		}
 
@@ -71,7 +71,7 @@ bool Ecosystem::SimulateEcosystem()
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 	{
 		ProcessLife(i->first);
-		std::vector<Entity*>& Entities = EntitiesMap[i->first];
+		std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
 
 		if (Entities.size() != 0)
 		{
@@ -82,11 +82,11 @@ bool Ecosystem::SimulateEcosystem()
 	return CanSimulate;
 }
 
-void Ecosystem::ProcessLife(EntityType Type)
+void Ecosystem::ProcessLife(EntityType InType)
 {
-	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
+	for (auto it = EntitiesMap[InType].begin(); it != EntitiesMap[InType].end();)
 	{
-		Entity* EntityToProcess = *it;
+		Entity* EntityToProcess = (*it).get();
 
 		if (EntityToProcess->AgeUp() && EntityToProcess->Feed())
 		{
@@ -95,14 +95,13 @@ void Ecosystem::ProcessLife(EntityType Type)
 		else
 		{
 			EntityToProcess->Kill();
-			delete EntityToProcess;
-			it = EntitiesMap[Type].erase(it);
+			it = EntitiesMap[InType].erase(it);
 		}
 	}
 
-	for (auto it = EntitiesMap[Type].begin(); it != EntitiesMap[Type].end();)
+	for (auto it = EntitiesMap[InType].begin(); it != EntitiesMap[InType].end();)
 	{
-		Entity* EntityToProcess = *it;
+		Entity* EntityToProcess = (*it).get();
 		EntityToProcess->Reproduce();
 		it++;
 	}
@@ -155,20 +154,20 @@ void Ecosystem::Cleanup()
 {
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 	{
-		std::vector<Entity*>& Entities = EntitiesMap[i->first];
+		std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
 
 		for (auto it = Entities.begin(); it != Entities.end();)
 		{
-			Entity* EntityToProcess = *it;
+			Entity* EntityToProcess = (*it).get();
 			delete EntityToProcess;
 			it = Entities.erase(it);
 		}
 
-		std::vector<Entity*>& ReproducedEntities = ReproducedEntitiesMap[i->first];
+		std::vector<std::shared_ptr<Entity>>& ReproducedEntities = ReproducedEntitiesMap[i->first];
 
 		for (auto it = ReproducedEntities.begin(); it != ReproducedEntities.end();)
 		{
-			Entity* EntityToProcess = *it;
+			Entity* EntityToProcess = (*it).get();
 			delete EntityToProcess;
 			it = ReproducedEntities.erase(it);
 		}

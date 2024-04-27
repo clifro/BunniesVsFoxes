@@ -15,10 +15,11 @@ int main()
 	{
 		if (!EcosystemManager->SimulateEcosystem())
 		{
-			std::cout << "Simulation Over At Turn " << EcosystemManager->Turn << std::endl;
+			std::cout << "Simulation Over At Turn " << EcosystemManager->Turn << " Final count " << Ecosystem::GetEcosystem()->count << std::endl;
 			break;
 		}
 
+		std::cout << " count " << Ecosystem::GetEcosystem()->count << std::endl;
 		Sleep(10);
 	}
 

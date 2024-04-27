@@ -11,6 +11,7 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
 	rand() % 2 ? Gender::Female : Gender::Male, static_cast<Color>(rand() % sizeof(Color)))
 {
 	std::cout << "Fox " << Name << " is born! " << std::endl;
+	Ecosystem::GetEcosystem()->count++;
 }
 
 bool Fox::AgeUp()
@@ -48,7 +49,7 @@ bool Fox::Feed()
 
 	//TODO Find random  bunny from a list which doesnt have ghost bunnies
 	const int randomId = rand() % numOfBunnies;
-	Bunny* BunnyToEat = static_cast<Bunny*>(Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId]);
+	Bunny* BunnyToEat = static_cast<Bunny*>(Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId].get());
 
 	if (BunnyToEat && !BunnyToEat->IsGhost)
 	{
@@ -100,11 +101,11 @@ void Fox::Reproduce()
 	}
 
 	Reproduced = true;
-	std::vector<Entity*>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Fox];
+	std::vector<std::shared_ptr<Entity>>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Fox];
 
 	for (auto it = Entities.begin(); it != Entities.end(); ++it)
 	{
-		Fox* AdultFox = static_cast<Fox*>((*it));
+		Fox* AdultFox = static_cast<Fox*>((*it).get());
 
 		if ((AdultFox->EntityGender == Gender::Female) && AdultFox->CanReproduce())
 		{
@@ -119,4 +120,5 @@ void Fox::Reproduce()
 void Fox::Kill()
 {
 	std::cout << "Fox " << Name << " is dead! " << std::endl;
+	Ecosystem::GetEcosystem()->count--;
 }

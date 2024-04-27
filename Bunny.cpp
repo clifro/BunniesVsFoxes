@@ -3,7 +3,7 @@
 #include "EcosystemData.h"
 #include<iostream>
 
-Bunny::Bunny(Bunny* Mother) : Parent(Mother), IsGhost(false), IsMutant(false),
+Bunny::Bunny(std::shared_ptr<Entity> Mother) : Parent(Mother), IsGhost(false), IsMutant(false),
 Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), 
 	EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge, 
 	EcosystemData::BunnyFoodAmount, EntityType::Grass, 
@@ -12,6 +12,7 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
 {
 	bool ConvertToMutant = ((rand() % 100) <= EcosystemData::BunnyMutantChance);
 	std::string GenderText = (static_cast<int>(EntityGender) ? "Female" : "Male");
+	Ecosystem::GetEcosystem()->count++;
 
 	if (ConvertToMutant)
 	{
@@ -24,8 +25,6 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
 	
 	std::cout << "Bunny " << Name << " is born! " << GenderText << std::endl;
 }
-
-using EntityVecRef = std::vector<Entity*>&;
 
 bool Bunny::AgeUp()
 {
@@ -77,11 +76,11 @@ void Bunny::Reproduce()
 		return;
 	}
 
-	EntityVecRef Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
+	std::vector<std::shared_ptr<Entity>>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
 
 	for (auto it = Entities.begin(); it != Entities.end(); ++it)
 	{
-		Bunny* AdultBunny = static_cast<Bunny*>((*it));
+		Bunny* AdultBunny = static_cast<Bunny*>((*it).get());
 
 		if (!AdultBunny)
 		{
@@ -94,7 +93,7 @@ void Bunny::Reproduce()
 		{
 			AdultBunny->Reproduced = true;
 			std::cout << "Bunny " << Name << " reproduced with " << AdultBunny->Name << std::endl;
-			Ecosystem::GetEcosystem()->AddReproducedEntity(EntityType::Bunny, new Bunny(AdultBunny));
+			Ecosystem::GetEcosystem()->AddReproducedEntity(EntityType::Bunny, new Bunny((*it)));
 		}
 	}
 }
@@ -105,13 +104,15 @@ void Bunny::Kill()
 	{
 		std::cout << "Ghost Bunny " << Name << " goes to the afterlife! " << std::endl;
 
-		if (Parent)
+		if (!Parent.expired())
 		{
-			std::cout << "Mother " << Parent->Name << " Finally accepts the death of " << Name << std::endl;
+			std::cout << "Mother " << Parent.lock()->Name << " Finally accepts the death of " << Name << std::endl;
 		}
 	}
 	else
 	{
 		std::cout << "Bunny " << Name << " is dead! " << std::endl;
 	}
+
+	Ecosystem::GetEcosystem()->count--;
 }
