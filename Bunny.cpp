@@ -16,14 +16,19 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
 
 	if (ConvertToMutant)
 	{
-		DeathAge = EcosystemData::BunnyMutantDeathAge;
-		FoodAmount = EcosystemData::BunnyMutantFoodAmount;
-		ReproduceAge = EcosystemData::BunnyMutantReproduceAge;
-		Name = "Mutant " + Name;
-		IsMutant = ConvertToMutant;
+		MakeMutant();
 	}
 	
 	std::cout << "Bunny " << Name << " is born! " << GenderText << std::endl;
+}
+
+void Bunny::MakeMutant()
+{
+	DeathAge = EcosystemData::BunnyMutantDeathAge;
+	FoodAmount = EcosystemData::BunnyMutantFoodAmount;
+	ReproduceAge = EcosystemData::BunnyMutantReproduceAge;
+	Name = "Mutant " + Name;
+	IsMutant = true;
 }
 
 bool Bunny::AgeUp()
@@ -53,15 +58,40 @@ bool Bunny::Feed()
 		return true;
 	}
 
+	if (IsMutant && (BitByMutantAtTurn < Ecosystem::GetEcosystem()->Turn))
+	{
+		Bite();
+	}
+
 	if (Ecosystem::GetEcosystem()->GetGrassAmount() >= FoodAmount)
 	{
 		Ecosystem::GetEcosystem()->ConsumeGrass(FoodAmount);
 		std::cout << "Bunny " << Name << " ate! " << std::endl;
 		return true;
 	}
-
+	
 	std::cout << "Bunny " << Name << " starved! " << std::endl;
 	return false;
+}
+
+void Bunny::Bite()
+{
+	std::vector<std::shared_ptr<Entity>>& Entities = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
+	for (auto it = Entities.begin(); it != Entities.end(); ++it)
+	{
+		Bunny* AdultBunny = static_cast<Bunny*>((*it).get());
+
+		if (AdultBunny->IsMutant)
+		{
+			continue;
+		}
+
+		std::cout << "Bunny " << Name << " bite " << AdultBunny->Name << std::endl;
+		AdultBunny->MakeMutant();
+		AdultBunny->BitByMutantAtTurn = Ecosystem::GetEcosystem()->Turn;
+		std::cout << AdultBunny->Name << " is created " << std::endl;
+		return;
+	}
 }
 
 bool Bunny::CanReproduce()
