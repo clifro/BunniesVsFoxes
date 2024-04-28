@@ -84,7 +84,7 @@ bool Fox::Feed()
 		{
 			FeedingAgainCounter = EcosystemData::FoxFeedAgainCount;
 
-			for (int i = FeedingAgainCounter; i > 0; --FeedingAgainCounter)
+			for (int i = FeedingAgainCounter; i > 0; --i)
 			{
 				std::cout << "Fox " << Name << " Feeding Again " << std::endl;
 				Feed();

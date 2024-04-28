@@ -78,6 +78,21 @@ bool Ecosystem::SimulateEcosystem()
 	{
 		ProcessLife(i->first);
 		std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
+		int numberOfEntities = Entities.size();
+
+		if ((i->first == EntityType::Bunny) && (numberOfEntities >= EcosystemData::MaxBunnyCount))
+		{
+			std::cout << "Max Bunny population reached " << std::endl;
+			int bunniesToKill = (numberOfEntities / 2);
+
+			while (bunniesToKill > 0)
+			{
+				int randomIndex = rand() % Entities.size();
+				std::cout << Entities[randomIndex]->Name << " Killed ";
+				Entities.erase(Entities.begin() + randomIndex);
+				bunniesToKill--;
+			}
+		}
 
 		if (Entities.size() != 0)
 		{
