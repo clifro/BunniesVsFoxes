@@ -36,6 +36,7 @@ public:
 	void Init();
 	void AddEntity(EntityType InType, Entity* InEntity);
 	void AddReproducedEntity(EntityType InType, Entity* InEntity);
+	void AddEntity(EntityType InType, std::shared_ptr<Entity>& InEntity);
 	void ProcessLife(EntityType InType);
 	bool SimulateEcosystem();
 	std::string RandomName(int length);

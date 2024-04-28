@@ -16,6 +16,7 @@ Ecosystem::~Ecosystem()
 {
 	std::cout << "Destroying Ecosystem........ " << std::endl;
 	Cleanup();
+	std::cout << "Remaining leaked memory entities count " << Ecosystem::GetEcosystem()->count << std::endl;
 }
 
 Ecosystem* Ecosystem::GetEcosystem()
@@ -38,6 +39,11 @@ void Ecosystem::AddEntity(EntityType InType, Entity* InEntity)
 void Ecosystem::AddReproducedEntity(EntityType InType, Entity* InEntity)
 {
 	ReproducedEntitiesMap[InType].push_back(std::shared_ptr<Entity>(InEntity));
+}
+
+void Ecosystem::AddEntity(EntityType InType, std::shared_ptr<Entity>& InEntity)
+{
+	EntitiesMap[InType].push_back(InEntity);
 }
 
 void Ecosystem::AddReproducedEntitiesInEcosystem()
@@ -159,7 +165,6 @@ void Ecosystem::Cleanup()
 		for (auto it = Entities.begin(); it != Entities.end();)
 		{
 			Entity* EntityToProcess = (*it).get();
-			delete EntityToProcess;
 			it = Entities.erase(it);
 		}
 
@@ -168,7 +173,6 @@ void Ecosystem::Cleanup()
 		for (auto it = ReproducedEntities.begin(); it != ReproducedEntities.end();)
 		{
 			Entity* EntityToProcess = (*it).get();
-			delete EntityToProcess;
 			it = ReproducedEntities.erase(it);
 		}
 	}

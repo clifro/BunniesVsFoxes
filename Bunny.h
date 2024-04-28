@@ -14,6 +14,7 @@ public:
 	bool IsMutant;
 	bool IsGhost;
 	Bunny(std::shared_ptr<Entity> Mother = 0);
+	~Bunny();
 	bool Feed() override;
 	void Kill() override;
 	void Reproduce() override;

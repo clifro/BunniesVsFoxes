@@ -113,6 +113,9 @@ void Bunny::Kill()
 	{
 		std::cout << "Bunny " << Name << " is dead! " << std::endl;
 	}
+}
 
+Bunny::~Bunny()
+{
 	Ecosystem::GetEcosystem()->count--;
 }

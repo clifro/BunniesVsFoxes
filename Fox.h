@@ -8,6 +8,7 @@ public:
 	int HuntingAge;
 	int FeedingAgainCounter;
 	Fox();
+	~Fox();
 	bool AgeUp() override;
 	bool Feed() override;
 	void Kill() override;

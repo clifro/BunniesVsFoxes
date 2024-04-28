@@ -20,6 +20,7 @@ enum class EntityType
 	Grass,
 	Bunny,
 	MutantBunny,
+	GhostBunny,
 	Fox
 };
 
@@ -27,7 +28,7 @@ enum class Gender
 {
 	Male,
 	Female,
-	Count // for randomization
+	Count // max count for randomization
 };
 
 class Entity
@@ -43,7 +44,7 @@ public:
 
 	typedef Entity Super;
 	Entity(EntityType InType, const std::string& InName, int InReproduceAge, int InDeathAge, int InFoodAmount, EntityType InFoodType, Gender InGender, Color InColor);
-	~Entity();
+	virtual ~Entity();
 	Color ColorAssigned;
 	std::string Name;
 	int ReproduceAge;

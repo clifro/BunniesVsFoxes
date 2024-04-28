@@ -39,7 +39,8 @@ bool Fox::Feed()
 		return true;
 	}
 
-	int numOfBunnies = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny].size();
+	std::vector<std::shared_ptr<Entity>>& Bunnies = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
+	int numOfBunnies = Bunnies.size();
 
 	if (numOfBunnies == 0)
 	{
@@ -47,26 +48,33 @@ bool Fox::Feed()
 		return false;
 	}
 
-	//TODO Find random  bunny from a list which doesnt have ghost bunnies
 	const int randomId = rand() % numOfBunnies;
-	Bunny* BunnyToEat = static_cast<Bunny*>(Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId].get());
+	Bunny* BunnyToEat = static_cast<Bunny*>(Bunnies[randomId].get());
 
-	if (BunnyToEat && !BunnyToEat->IsGhost)
+	if (BunnyToEat)
 	{
+		bool CanDieEatingBunny = false;
 		std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
-		Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny][randomId]->RemainingTurns = 5;
 
 		if (!BunnyToEat->IsMutant)
 		{
+			BunnyToEat->RemainingTurns = EcosystemData::BunnyGhostTurns;
 			BunnyToEat->IsGhost = true;
+			std::cout << "Bunny " << BunnyToEat->Name << " Became ghost " << std::endl;
+			Ecosystem::GetEcosystem()->AddEntity(EntityType::GhostBunny, Bunnies[randomId]);
 		}
 		else
 		{
-			const bool death = ((rand() % 100) <= EcosystemData::FoxDeathDeathChanceEatingMutant);
-			if (death)
-			{
-				return false;
-			}
+			RemainingTurns = EcosystemData::FoxReproBanTurns;
+			BunnyToEat->Kill();
+			CanDieEatingBunny = ((rand() % 100) <= EcosystemData::FoxDeathDeathChanceEatingMutant);
+		}
+
+		Bunnies.erase(Bunnies.begin() + randomId);
+
+		if (CanDieEatingBunny)
+		{
+			return false;
 		}
 
 		const bool FeedAgainChance = (rand() % 100 <= EcosystemData::FoxFeedAgainChance);
@@ -120,5 +128,9 @@ void Fox::Reproduce()
 void Fox::Kill()
 {
 	std::cout << "Fox " << Name << " is dead! " << std::endl;
+}
+
+Fox::~Fox()
+{
 	Ecosystem::GetEcosystem()->count--;
 }
