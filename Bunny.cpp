@@ -31,6 +31,22 @@ void Bunny::MakeMutant()
 	IsMutant = true;
 }
 
+void Bunny::DisplayStatus()
+{
+	std::string status = Name;
+
+	if (!IsGhost)
+	{
+		status += " Age:" + std::to_string(Age);
+	}
+	else
+	{
+		status += " Ghost for " + std::to_string(RemainingTurns) + " Turns ";
+	}
+
+	std::cout << status << std::endl;
+}
+
 bool Bunny::AgeUp()
 {
 	if (IsGhost && RemainingTurns > 0)

@@ -54,7 +54,7 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 		{
 			std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
 			std::vector<std::shared_ptr<Entity>>& ReproducedEntities = ReproducedEntitiesMap[i->first];
-			Entities.insert(Entities.end(), ReproducedEntities.begin(), ReproducedEntities.end());
+			Entities.insert(Entities.begin(), ReproducedEntities.begin(), ReproducedEntities.end());
 		}
 
 		ReproducedEntitiesMap.clear();
@@ -63,7 +63,6 @@ void Ecosystem::AddReproducedEntitiesInEcosystem()
 
 bool Ecosystem::SimulateEcosystem()
 {
-	bool CanSimulate = false;
 	Turn++;
 	GrassAmount += EcosystemData::GrassGrowthRate;
 
@@ -80,27 +79,42 @@ bool Ecosystem::SimulateEcosystem()
 		std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
 		int numberOfEntities = Entities.size();
 
-		if ((i->first == EntityType::Bunny) && (numberOfEntities >= EcosystemData::MaxBunnyCount))
+		if ((i->first == EntityType::Bunny))
 		{
-			std::cout << "Max Bunny population reached " << std::endl;
-			int bunniesToKill = (numberOfEntities / 2);
-
-			while (bunniesToKill > 0)
+			if (numberOfEntities >= EcosystemData::MaxBunnyCount)
 			{
-				int randomIndex = rand() % Entities.size();
-				std::cout << Entities[randomIndex]->Name << " Killed ";
-				Entities.erase(Entities.begin() + randomIndex);
-				bunniesToKill--;
+				std::cout << "Max Bunny population reached " << std::endl;
+				int bunniesToKill = (numberOfEntities / 2);
+
+				while (bunniesToKill > 0)
+				{
+					int randomIndex = rand() % Entities.size();
+					std::cout << Entities[randomIndex]->Name << " Killed ";
+					Entities.erase(Entities.begin() + randomIndex);
+					bunniesToKill--;
+				}
+			}
+
+			if (Entities.size() == 0)
+			{
+				std::cout << "All Bunnies are dead. Terminating " << std::endl;
+				return false;
 			}
 		}
 
-		if (Entities.size() != 0)
+		if(i->first == EntityType::Bunny)
 		{
-			CanSimulate = true;
+			std::cout << "------------------------------ Bunnies status ------------------------------" << std::endl;
+			for (auto it = EntitiesMap[i->first].begin(); it != EntitiesMap[i->first].end(); ++it)
+			{
+				Bunny* BunnyEntity = static_cast<Bunny*>((*it).get());
+				BunnyEntity->DisplayStatus();
+			}
+			std::cout << "------------------------------ xxxxxxxxxxxxx ------------------------------" << std::endl;
 		}
 	}
 
-	return CanSimulate;
+	return true;
 }
 
 void Ecosystem::ProcessLife(EntityType InType)

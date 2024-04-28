@@ -16,6 +16,7 @@ public:
 	int BitByMutantAtTurn = 0;
 	Bunny(std::shared_ptr<Entity> Mother = 0);
 	~Bunny();
+	void DisplayStatus();
 	bool Feed() override;
 	void Bite();
 	void Kill() override;
