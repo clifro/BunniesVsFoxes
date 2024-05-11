@@ -1,5 +1,10 @@
 #include"Entity.h"
  
+Entity::Entity()
+{
+
+}
+
 Entity::Entity(EntityType InType, const std::string& InName, 
 	int InReproduceAge, int InDeathAge, 
 	int InFoodAmount, EntityType InFoodType, 

@@ -3,12 +3,12 @@
 #include "EcosystemData.h"
 #include<iostream>
 
-Bunny::Bunny(std::shared_ptr<Entity> Mother) : Parent(Mother), IsGhost(false), IsMutant(false),
-Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4), 
-	EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge, 
-	EcosystemData::BunnyFoodAmount, EntityType::Grass, 
+Bunny::Bunny() : IsGhost(false), IsMutant(false), 
+Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
+	EcosystemData::BunnyReproduceAge, EcosystemData::BunnyDeathAge,
+	EcosystemData::BunnyFoodAmount, EntityType::Grass,
 	rand() % 2 ? Gender::Female : Gender::Male,
-	Mother ? Mother->ColorAssigned : static_cast<Color>(rand() % sizeof(Color)))
+	static_cast<Color>(rand() % sizeof(Color)))
 {
 	bool ConvertToMutant = ((rand() % 100) <= EcosystemData::BunnyMutantChance);
 	std::string GenderText = (static_cast<int>(EntityGender) ? "Female" : "Male");
@@ -18,8 +18,16 @@ Super(EntityType::Grass, Ecosystem::GetEcosystem()->RandomName(4),
 	{
 		MakeMutant();
 	}
-	
+
 	std::cout << "Bunny " << Name << " is born! " << GenderText << std::endl;
+}
+
+Bunny::Bunny(std::shared_ptr<Entity>& Mother) : Bunny()
+{
+	if (!std::weak_ptr<Entity>(Mother).expired())
+	{
+		ColorAssigned = Mother->ColorAssigned;
+	}
 }
 
 void Bunny::MakeMutant()
@@ -132,8 +140,6 @@ void Bunny::Reproduce()
 		{
 			return;
 		}
-
-		//TODO order by age 
 
 		if ((AdultBunny->EntityGender == Gender::Female) && AdultBunny->CanReproduce())
 		{

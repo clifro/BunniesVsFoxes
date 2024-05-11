@@ -40,7 +40,7 @@ bool Fox::Feed()
 	}
 
 	std::vector<std::shared_ptr<Entity>>& Bunnies = Ecosystem::GetEcosystem()->EntitiesMap[EntityType::Bunny];
-	int numOfBunnies = Bunnies.size();
+	size_t numOfBunnies = Bunnies.size();
 
 	if (numOfBunnies == 0)
 	{
@@ -51,48 +51,50 @@ bool Fox::Feed()
 	const int randomId = rand() % numOfBunnies;
 	Bunny* BunnyToEat = static_cast<Bunny*>(Bunnies[randomId].get());
 
-	if (BunnyToEat)
+	if (!BunnyToEat)
 	{
-		bool CanDieEatingBunny = false;
-		std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
-
-		if (!BunnyToEat->IsMutant)
-		{
-			BunnyToEat->RemainingTurns = EcosystemData::BunnyGhostTurns;
-			BunnyToEat->IsGhost = true;
-			std::cout << "Bunny " << BunnyToEat->Name << " Became ghost " << std::endl;
-			Ecosystem::GetEcosystem()->AddEntity(EntityType::GhostBunny, Bunnies[randomId]);
-		}
-		else
-		{
-			RemainingTurns = EcosystemData::FoxReproBanTurns;
-			BunnyToEat->Kill();
-			CanDieEatingBunny = ((rand() % 100) <= EcosystemData::FoxDeathDeathChanceEatingMutant);
-		}
-
-		Bunnies.erase(Bunnies.begin() + randomId);
-
-		if (CanDieEatingBunny)
-		{
-			return false;
-		}
-
-		const bool FeedAgainChance = (rand() % 100 <= EcosystemData::FoxFeedAgainChance);
-		const bool IsGrassLess = Ecosystem::GetEcosystem()->GetGrassAmount() < (EcosystemData::FoxFeedAgainChanceWithGrassAmount * EcosystemData::MaxGrass / 100);
-
-		if (FeedAgainChance && (FeedingAgainCounter == 0) && IsGrassLess)
-		{
-			FeedingAgainCounter = EcosystemData::FoxFeedAgainCount;
-
-			for (int i = FeedingAgainCounter; i > 0; --i)
-			{
-				std::cout << "Fox " << Name << " Feeding Again " << std::endl;
-				Feed();
-			}
-		}
-
-		return true;
+		return false;
 	}
+
+	bool CanDieEatingBunny = false;
+	std::cout << "Fox " << Name << " Ate " << BunnyToEat->Name << std::endl;
+
+	if (!BunnyToEat->IsMutant)
+	{
+		BunnyToEat->RemainingTurns = EcosystemData::BunnyGhostTurns;
+		BunnyToEat->IsGhost = true;
+		std::cout << "Bunny " << BunnyToEat->Name << " Became ghost " << std::endl;
+		Ecosystem::GetEcosystem()->AddEntity(EntityType::GhostBunny, Bunnies[randomId]);
+	}
+	else
+	{
+		RemainingTurns = EcosystemData::FoxReproBanTurns;
+		BunnyToEat->Kill();
+		CanDieEatingBunny = ((rand() % 100) <= EcosystemData::FoxDeathDeathChanceEatingMutant);
+	}
+
+	Bunnies.erase(Bunnies.begin() + randomId);
+
+	if (CanDieEatingBunny)
+	{
+		return false;
+	}
+
+	const bool FeedAgainChance = (rand() % 100 <= EcosystemData::FoxFeedAgainChance);
+	const bool IsGrassLess = Ecosystem::GetEcosystem()->GetGrassAmount() < (EcosystemData::FoxFeedAgainChanceWithGrassAmount * EcosystemData::MaxGrass / 100);
+
+	if (FeedAgainChance && (FeedingAgainCounter == 0) && IsGrassLess)
+	{
+		FeedingAgainCounter = EcosystemData::FoxFeedAgainCount;
+
+		for (int i = FeedingAgainCounter; i > 0; --i)
+		{
+			std::cout << "Fox " << Name << " Feeding Again " << std::endl;
+			Feed();
+		}
+	}
+
+	return true;
 }
 
 

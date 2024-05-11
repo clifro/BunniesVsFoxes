@@ -15,7 +15,6 @@ Ecosystem::Ecosystem() : GrassAmount(EcosystemData::MaxGrass)
 Ecosystem::~Ecosystem()
 {
 	std::cout << "Destroying Ecosystem........ " << std::endl;
-	Cleanup();
 	std::cout << "Remaining leaked memory entities count " << Ecosystem::GetEcosystem()->count << std::endl;
 }
 
@@ -26,6 +25,7 @@ Ecosystem* Ecosystem::GetEcosystem()
 		std::cout << "Initializing Ecosystem........ " << std::endl;
 		EcosystemManager = new Ecosystem();
 		std::cout << "Initialized Ecosystem! " << std::endl;
+		EcosystemManager->Init();
 	}
 
 	return EcosystemManager;
@@ -33,17 +33,17 @@ Ecosystem* Ecosystem::GetEcosystem()
 
 void Ecosystem::AddEntity(EntityType InType, Entity* InEntity)
 {
-	EntitiesMap[InType].push_back(std::shared_ptr<Entity>(InEntity));
+	EntitiesMap[InType].emplace_back(InEntity);
 }
 
 void Ecosystem::AddReproducedEntity(EntityType InType, Entity* InEntity)
 {
-	ReproducedEntitiesMap[InType].push_back(std::shared_ptr<Entity>(InEntity));
+	ReproducedEntitiesMap[InType].emplace_back(InEntity);
 }
 
 void Ecosystem::AddEntity(EntityType InType, std::shared_ptr<Entity>& InEntity)
 {
-	EntitiesMap[InType].push_back(InEntity);
+	EntitiesMap[InType].emplace_back(InEntity);
 }
 
 void Ecosystem::AddReproducedEntitiesInEcosystem()
@@ -72,49 +72,54 @@ bool Ecosystem::SimulateEcosystem()
 	}
 
 	std::cout << "Turn : " << Turn << " Grass is " << GrassAmount << std::endl;
+	bool Terminate = true;
 
 	for (auto i = EntitiesMap.begin(); i != EntitiesMap.end(); i++)
 	{
 		ProcessLife(i->first);
 		std::vector<std::shared_ptr<Entity>>& Entities = EntitiesMap[i->first];
-		int numberOfEntities = Entities.size();
+		size_t numberOfEntities = Entities.size();
 
-		if ((i->first == EntityType::Bunny))
+		if (i->first == EntityType::Bunny || i->first == EntityType::GhostBunny || i->first == EntityType::MutantBunny)
 		{
-			if (numberOfEntities >= EcosystemData::MaxBunnyCount)
+			if ((i->first == EntityType::Bunny))
 			{
-				std::cout << "Max Bunny population reached " << std::endl;
-				int bunniesToKill = (numberOfEntities / 2);
-
-				while (bunniesToKill > 0)
+				if (numberOfEntities >= EcosystemData::MaxBunnyCount)
 				{
-					int randomIndex = rand() % Entities.size();
-					std::cout << Entities[randomIndex]->Name << " Killed ";
-					Entities.erase(Entities.begin() + randomIndex);
-					bunniesToKill--;
+					std::cout << "Max Bunny population reached " << std::endl;
+					size_t bunniesToKill = (numberOfEntities / 2);
+
+					while (bunniesToKill > 0)
+					{
+						size_t randomIndex = rand() % Entities.size();
+						std::cout << Entities[randomIndex]->Name << " Killed ";
+						Entities.erase(Entities.begin() + randomIndex);
+						bunniesToKill--;
+					}
 				}
 			}
 
-			if (Entities.size() == 0)
+			if (numberOfEntities > 0)
 			{
-				std::cout << "All Bunnies are dead. Terminating " << std::endl;
-				return false;
-			}
-		}
+				std::cout << "------------------------------ Bunnies status ------------------------------" << std::endl;
+				for (auto it = EntitiesMap[i->first].begin(); it != EntitiesMap[i->first].end(); ++it)
+				{
+					Bunny* BunnyEntity = static_cast<Bunny*>((*it).get());
+					BunnyEntity->DisplayStatus();
+				}
+				std::cout << "------------------------------ xxxxxxxxxxxxx ------------------------------" << std::endl;
 
-		if(i->first == EntityType::Bunny)
-		{
-			std::cout << "------------------------------ Bunnies status ------------------------------" << std::endl;
-			for (auto it = EntitiesMap[i->first].begin(); it != EntitiesMap[i->first].end(); ++it)
-			{
-				Bunny* BunnyEntity = static_cast<Bunny*>((*it).get());
-				BunnyEntity->DisplayStatus();
+				Terminate = false;
 			}
-			std::cout << "------------------------------ xxxxxxxxxxxxx ------------------------------" << std::endl;
 		}
 	}
 
-	return true;
+	if (Terminate)
+	{
+		std::cout << "All Bunnies are dead. Terminating " << std::endl;
+	}
+
+	return !Terminate;
 }
 
 void Ecosystem::ProcessLife(EntityType InType)

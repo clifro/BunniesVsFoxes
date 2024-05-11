@@ -6,10 +6,9 @@
 
 int main()
 {
-	srand(time(NULL));
+	srand(static_cast<int>(time(NULL)));
 	std::cout << " Welcome to Bunnies Vs Foxes Ecosystem " << std::endl;
 	Ecosystem* EcosystemManager = Ecosystem::GetEcosystem();
-	EcosystemManager->Init();
 
 	while (true)
 	{

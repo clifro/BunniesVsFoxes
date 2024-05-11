@@ -14,7 +14,8 @@ public:
 	bool IsMutant;
 	bool IsGhost;
 	int BitByMutantAtTurn = 0;
-	Bunny(std::shared_ptr<Entity> Mother = 0);
+	Bunny();
+	Bunny(std::shared_ptr<Entity>& Mother);
 	~Bunny();
 	void DisplayStatus();
 	bool Feed() override;
